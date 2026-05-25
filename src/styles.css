@@ -1039,13 +1039,16 @@ main {
   text-transform: uppercase;
 }
 
-.final-logo {
-  display: block;
-  width: min(36rem, 90%);
-  filter:
-    drop-shadow(0 0 1.6rem rgba(115,217,220,0.13))
-    drop-shadow(0 0 4.5rem rgba(81,38,128,0.44));
-  mix-blend-mode: screen;
+.final-brand-text {
+  margin: 0 0 clamp(1rem, 2.5vw, 1.8rem);
+  font-family: "High Cruiser", "Orbitron", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2rem, 7vw, 3.8rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--white-soft);
+  text-shadow:
+    0 0 2.4rem rgba(115,217,220,0.35),
+    0 0 6rem rgba(81,38,128,0.5);
 }
 
 .final-statement {

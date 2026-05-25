@@ -584,17 +584,15 @@ function FinalSection() {
           >
             Open for collaboration
           </motion.p>
-          {brandSrc && (
-            <motion.img
-              className="final-logo"
-              src={brandSrc}
-              alt="Infinite Productions"
-              initial={{ opacity: 0, scale: 0.88 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.28, duration: 0.8, ease: EASE_EXPO }}
-            />
-          )}
+          <motion.h2
+            className="final-brand-text"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.28, duration: 0.8, ease: EASE_EXPO }}
+          >
+            Infinite Productions
+          </motion.h2>
           <motion.p
             className="final-statement"
             initial={{ opacity: 0, y: 20 }}
