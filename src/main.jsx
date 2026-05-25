@@ -430,15 +430,6 @@ function HeroSection() {
       <motion.div className="hero-sticky" style={{ y: heroY }}>
         <FrequencyBars />
 
-        <motion.p
-          className="eyebrow"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, ease: EASE_EXPO, delay: 0.05 }}
-        >
-          Est. 2024 &nbsp;·&nbsp; Music Production Collective
-        </motion.p>
-
         {brandSrc && (
           <motion.img
             className="hero-brand-lockup"
@@ -467,16 +458,7 @@ function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.26, duration: 0.9, ease: EASE_EXPO }}
         >
-          stories through notes
-        </motion.p>
-
-        <motion.p
-          className="subtagline"
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.38, duration: 0.9, ease: EASE_EXPO }}
-        >
-          Hello! I'm FINITE. I believe every track contains a story that deserves to be told.
+          STORIES THROUGH NOTES
         </motion.p>
 
         <ScrollCue />
@@ -532,31 +514,11 @@ function PortalSection() {
         <div className="section-marker">
           <div className="section-marker-label-wrap">
             <ClipReveal>
-              <p className="section-marker-label">Find the signal</p>
+              <p className="section-marker-label">Wanna sample my work?</p>
             </ClipReveal>
           </div>
-          <motion.p
-            className="section-marker-sub"
-            initial={{ opacity: 0, x: -16 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ delay: 0.28, duration: 0.6, ease: EASE_EXPO }}
-          >
-            Every channel. One frequency.
-          </motion.p>
         </div>
 
-        {/* Counting number */}
-        <motion.span
-          className="portal-count"
-          aria-hidden="true"
-          initial={{ opacity: 0, scale: 0.55, filter: "blur(12px)" }}
-          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 0.1 }}
-          transition={{ delay: 0.12, duration: 0.95, ease: EASE_EXPO }}
-        >
-          <AnimatedCount target={LINKS.length} />
-        </motion.span>
       </motion.div>
 
       {/* ── Tiles ── */}
@@ -640,8 +602,7 @@ function FinalSection() {
             viewport={{ once: true }}
             transition={{ delay: 0.38, duration: 0.7, ease: EASE_EXPO }}
           >
-            Got a vision? Bring the concept.<br />
-            FINITE brings the sound.
+            If you're serious about your sound and want to take your track from a rough idea to a polished, release-ready record, let's work.
           </motion.p>
           <motion.a
             className="final-cta"
