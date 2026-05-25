@@ -1,0 +1,1214 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   INFINITE PRODUCTIONS — Premium Interactive Identity
+   Stack: React + Tailwind v4 + Framer Motion
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import "tailwindcss";
+
+/* ── Custom fonts ─────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: "High Cruiser";
+  src:
+    url("/assets/fonts/HIGHCRUISER.woff2") format("woff2"),
+    url("/assets/fonts/HighCruiser.woff2") format("woff2"),
+    url("/assets/fonts/HIGH CRUISER.ttf") format("truetype"),
+    url("/assets/fonts/High Cruiser.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "A Day Without Sun Text";
+  src:
+    url("/assets/fonts/ADayWithoutSunText.woff2") format("woff2"),
+    url("/assets/fonts/A DAY WITHOUT SUN TEXT.ttf") format("truetype"),
+    url("/assets/fonts/A Day Without Sun Text.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: dark;
+
+  --violet-night:   #090511;
+  --deep-violet:    #170c2c;
+  --dark-purple:    #281443;
+  --muted-teal:     #276b70;
+  --aqua:           #73d9dc;
+  --aqua-dim:       rgba(115, 217, 220, 0.18);
+  --charcoal-blue:  #151e2c;
+  --silver:         #c8ccd2;
+  --silver-dim:     rgba(200, 204, 210, 0.62);
+  --white-soft:     rgba(237, 242, 246, 0.94);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Reset / base ─────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  min-width: 320px;
+  background: var(--violet-night);
+  scroll-behavior: smooth;
+  /* Smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  color: var(--silver);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(40, 20, 67, 0.62), transparent 36rem),
+    linear-gradient(180deg, #090511 0%, #111626 44%, #070811 100%);
+  /* Smooth scroll on Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(115,217,220,0.2) transparent;
+}
+
+/* Webkit scrollbar — thin aqua tint */
+body::-webkit-scrollbar { width: 4px; }
+body::-webkit-scrollbar-track { background: transparent; }
+body::-webkit-scrollbar-thumb {
+  background: rgba(115,217,220,0.18);
+  border-radius: 999px;
+}
+
+/* Fine grid scan-line overlay */
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  content: "";
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+/* CRT vignette */
+body::after {
+  position: fixed;
+  inset: 0;
+  z-index: 21;
+  pointer-events: none;
+  content: "";
+  background: radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.72));
+  opacity: 0.55;
+}
+
+a { color: inherit; }
+
+/* ── Main wrapper ─────────────────────────────────────────────────────────── */
+
+main {
+  position: relative;
+  isolation: isolate;
+  min-height: 430vh;
+  /* Cursor-reactive ambient glow */
+  background:
+    radial-gradient(circle at var(--cx, 50%) var(--cy, 50%), rgba(115,217,220,0.14), transparent 18rem),
+    radial-gradient(circle at calc(var(--cx, 50%) + 20%) calc(var(--cy, 50%) - 20%), rgba(81,38,128,0.18), transparent 26rem);
+}
+
+/* ── Progress line ────────────────────────────────────────────────────────── */
+
+.progress-line {
+  position: fixed;
+  top: 0; right: 0; left: 0;
+  z-index: 60;
+  height: 2px;
+  transform-origin: left;
+  background: linear-gradient(90deg, transparent, var(--aqua), rgba(200,204,210,0.7));
+  box-shadow: 0 0 1.8rem rgba(115,217,220,0.55);
+}
+
+/* ── Lottie background ────────────────────────────────────────────────────── */
+
+.lottie-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  will-change: opacity;
+  /* Tint it with the brand palette */
+  filter: hue-rotate(200deg) saturate(60%) brightness(0.55);
+  mix-blend-mode: screen;
+}
+
+.lottie-bg-player {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Fixed atmospheric layers ─────────────────────────────────────────────── */
+
+.atmo-canvas,
+.motion-texture,
+.fixed-haze,
+.cursor-light {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.atmo-canvas {
+  z-index: 2;
+  opacity: 0.88;
+  filter: blur(10px) saturate(115%);
+  will-change: contents;
+}
+
+.motion-texture {
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.18;
+  filter: saturate(75%) contrast(122%) brightness(52%) blur(1px);
+  mix-blend-mode: screen;
+  transform: scale(1.1);
+}
+
+.fixed-haze {
+  z-index: 2;
+  background:
+    radial-gradient(ellipse at 16% 22%, rgba(115,217,220,0.15), transparent 34rem),
+    radial-gradient(ellipse at 76% 20%, rgba(40,20,67,0.7), transparent 36rem),
+    radial-gradient(ellipse at 50% 80%, rgba(39,107,112,0.16), transparent 28rem);
+  mix-blend-mode: screen;
+  transform-origin: center;
+  /* CSS-only slow drift — no JS scroll transform */
+  animation: hazeOrbit 60s linear infinite;
+}
+
+@keyframes hazeOrbit {
+  0%   { transform: rotate(0deg)  scale(1.04); }
+  33%  { transform: rotate(8deg)  scale(1.06); }
+  66%  { transform: rotate(-6deg) scale(1.05); }
+  100% { transform: rotate(0deg)  scale(1.04); }
+}
+
+.fixed-haze::before {
+  position: absolute;
+  inset: -28%;
+  content: "";
+  background:
+    conic-gradient(from 130deg at 48% 48%, transparent, rgba(115,217,220,0.1), transparent 20%, rgba(40,20,67,0.18), transparent 44%),
+    radial-gradient(circle at 50% 50%, transparent 0 17%, rgba(200,204,210,0.04) 18% 18.6%, transparent 19%);
+  animation: slowOrbit 36s linear infinite;
+}
+
+/* Cursor spotlight */
+.cursor-light {
+  z-index: 4;
+  background: radial-gradient(
+    circle at var(--cx, 50%) var(--cy, 50%),
+    rgba(115,217,220,0.11),
+    transparent 18rem
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.cursor-light--active {
+  opacity: 1;
+}
+
+/* ── Background disc — true 3D vinyl ─────────────────────────────────────── */
+
+/*
+ * Scene container — fixed, right side, vertically centered.
+ * perspective here makes all child rotateY/rotateX render in 3D.
+ */
+.bg-disc-scene {
+  position: fixed;
+  top: 50%;
+  right: -6vw;
+  z-index: 3;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform: translateY(-50%);
+  /* Deep perspective so the tilt looks dramatic but not distorted */
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+}
+
+/*
+ * Tilt wrapper — rotateY is applied here by Framer Motion.
+ * transform-style: preserve-3d passes the 3D context to children.
+ */
+.bg-disc-tilt {
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+/*
+ * The disc body — circular, spins on rotateZ.
+ * All visual layers (grooves, sheen, label) live inside here.
+ */
+.bg-disc-body {
+  position: relative;
+  width: clamp(24rem, 50vw, 64rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+
+  /* Deep vinyl black with subtle warm center */
+  background:
+    radial-gradient(circle at 34% 24%, rgba(200,204,210,0.055) 0%, transparent 38%),
+    radial-gradient(circle at 50% 50%, #1d1230 0%, #0c0919 50%, #050308 100%);
+
+  /* Rim glow — teal edge light + purple ambient */
+  box-shadow:
+    0 0 0 1.5px rgba(200,204,210,0.06),
+    0 0 5rem  rgba(115,217,220,0.1),
+    0 0 20rem rgba(81,38,128,0.22),
+    inset 0 0 6rem rgba(0,0,0,0.7);
+}
+
+/* Vinyl groove rings */
+.bg-disc-grooves {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent calc(var(--g) - 0.35px),
+      rgba(200,204,210,0.055) calc(var(--g) - 0.35px),
+      rgba(200,204,210,0.055) var(--g)
+    );
+  --g: 1.65%;
+  /* Mask out center (label area) and outer rim */
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 12%,
+    black 16%,
+    black 90%,
+    transparent 100%
+  );
+}
+
+/*
+ * Iridescent sheen — does NOT spin with the disc.
+ * Simulates a fixed light source catching the grooves.
+ * Achieved by being a child of .bg-disc-tilt (not .bg-disc-body).
+ */
+.bg-disc-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 200deg at 38% 32%,
+    transparent        0deg,
+    rgba(115,217,220,0.13) 35deg,
+    rgba(200,204,210,0.06) 65deg,
+    transparent        100deg,
+    rgba(81,38,128,0.1)    200deg,
+    transparent        240deg,
+    rgba(115,217,220,0.07) 310deg,
+    transparent        360deg
+  );
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 12%,
+    black 16%,
+    black 90%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Center label */
+.bg-disc-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(115,217,220,0.22), transparent 50%),
+    linear-gradient(145deg, #221240, #0e0922);
+  box-shadow:
+    0 0 2.8rem rgba(115,217,220,0.16),
+    inset 0 0 2rem rgba(0,0,0,0.6);
+  border: 1px solid rgba(115,217,220,0.16);
+}
+
+/* Spindle hole */
+.bg-disc-label::before {
+  content: "";
+  position: absolute;
+  width: 10%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #030106;
+  box-shadow: 0 0 0.6rem rgba(0,0,0,1);
+  z-index: 2;
+}
+
+.bg-disc-label img {
+  width: 58%;
+  height: 58%;
+  object-fit: contain;
+  opacity: 0.75;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 0.8rem rgba(115,217,220,0.4));
+}
+
+/*
+ * Edge — the thin side of the record visible when rotateY is applied.
+ * Positioned at translateZ(-4px) so it sits just behind the face.
+ */
+.bg-disc-edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(200,204,210,0.12) 0%,
+    rgba(115,217,220,0.08) 30%,
+    rgba(40,20,67,0.4)     70%,
+    rgba(10,5,20,0.6)      100%
+  );
+  transform: translateZ(-6px);
+  pointer-events: none;
+}
+
+/*
+ * Ground shadow — ellipse below the disc, blurred.
+ * Gives the floating-in-space illusion depth.
+ */
+.bg-disc-shadow {
+  position: absolute;
+  bottom: -8%;
+  left: 50%;
+  transform: translateX(-50%) translateZ(-20px) rotateX(90deg);
+  width: 70%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(81,38,128,0.35) 0%,
+    rgba(115,217,220,0.08) 50%,
+    transparent 100%
+  );
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* ── Logo mark ────────────────────────────────────────────────────────────── */
+
+.logo-mark {
+  position: fixed;
+  top: clamp(1rem, 2.8vw, 2.2rem);
+  right: clamp(1rem, 3.2vw, 2.6rem);
+  z-index: 40;
+  display: grid;
+  width: clamp(3.8rem, 7.5vw, 6rem);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(200,204,210,0.14);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(115,217,220,0.1), transparent 65%),
+    rgba(9,5,17,0.32);
+  box-shadow:
+    0 0 3.8rem rgba(115,217,220,0.1),
+    inset 0 0 2.2rem rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+}
+
+.logo-mark-ring {
+  position: absolute;
+  inset: 0.6rem;
+  border: 1px solid rgba(115,217,220,0.14);
+  border-radius: 50%;
+  animation: slowOrbit 22s linear infinite reverse;
+}
+
+.logo-mark img,
+.logo-mark svg {
+  position: absolute;
+  width: 72%;
+  height: 52%;
+  object-fit: contain;
+  color: rgba(200,204,210,0.8);
+}
+
+.logo-mark img { mix-blend-mode: screen; }
+
+/* ── Frequency bars — pure CSS, zero JS cost ─────────────────────────────── */
+
+.freq-bars {
+  position: absolute;
+  top: clamp(6rem, 11.5vw, 9.4rem);
+  left: clamp(1.2rem, 5.6vw, 6.6rem);
+  display: flex;
+  height: 2.4rem;
+  align-items: center;
+  gap: 0.28rem;
+  opacity: 0.72;
+}
+
+.freq-bars span {
+  width: 2px;
+  height: calc(0.42rem + (var(--bar) % 10) * 0.15rem);
+  border-radius: 999px;
+  transform-origin: center;
+  background: linear-gradient(180deg, rgba(115,217,220,0.95), rgba(200,204,210,0.15));
+  box-shadow: 0 0 1rem rgba(115,217,220,0.32);
+  animation: barPulse calc(2s + (var(--bar) * 0.09s)) ease-in-out infinite;
+  animation-delay: calc(var(--bar) * -0.11s);
+}
+
+@keyframes barPulse {
+  0%, 100% { transform: scaleY(0.18); }
+  50%       { transform: scaleY(1);   }
+}
+
+/* ── Hero section ─────────────────────────────────────────────────────────── */
+
+.hero-section {
+  position: relative;
+  z-index: 10;
+  min-height: 190vh;
+}
+
+.hero-sticky {
+  position: sticky;
+  top: 0;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(6rem, 9vw, 9.5rem) clamp(1.2rem, 5.8vw, 6.8rem);
+}
+
+.eyebrow {
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 1.4rem;
+  color: rgba(115,217,220,0.7);
+  font-size: clamp(0.62rem, 0.9vw, 0.76rem);
+  letter-spacing: 0.52em;
+  text-transform: uppercase;
+}
+
+/* Brand lockup image */
+.hero-brand-lockup {
+  display: block;
+  width: min(76rem, 95vw);
+  max-height: min(56vh, 40rem);
+  object-fit: contain;
+  object-position: left center;
+  margin: 0 0 clamp(0.6rem, 1.5vw, 1.1rem) -0.5rem;
+  filter:
+    drop-shadow(0 0 1.8rem rgba(115,217,220,0.15))
+    drop-shadow(0 0 5.5rem rgba(81,38,128,0.55));
+  transform-origin: left bottom;
+  mix-blend-mode: screen;
+}
+
+/* Fallback text title — shown only when image fails */
+.hero-title {
+  width: min-content;
+  min-width: min(100%, 34rem);
+  margin: 0;
+  color: var(--white-soft);
+  font-family: "High Cruiser", "Orbitron", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(4.2rem, 13.8vw, 13rem);
+  font-weight: 400;
+  line-height: 0.78;
+  letter-spacing: 0;
+  text-shadow:
+    0 0 1.6rem rgba(115,217,220,0.16),
+    0 0 6rem rgba(81,38,128,0.6);
+  transform-origin: left bottom;
+  /* Hide when brand-lockup image is present — JS handles this via CSS */
+}
+
+/* When brand-lockup loads successfully, visually hide the h1 */
+.hero-brand-lockup:not([style*="display: none"]) ~ .hero-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.tagline {
+  max-width: 44rem;
+  margin: clamp(1.2rem, 2vw, 1.8rem) 0 0;
+  color: rgba(237,242,246,0.92);
+  font-family: "A Day Without Sun Text", ui-serif, Georgia, serif;
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+.subtagline {
+  max-width: 38rem;
+  margin-top: 0.9rem;
+  color: rgba(200,204,210,0.52);
+  font-family: Inter, ui-sans-serif, sans-serif;
+  font-size: clamp(0.88rem, 1.3vw, 1.02rem);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+/* ── Scroll cue ───────────────────────────────────────────────────────────── */
+
+.scroll-cue {
+  position: absolute;
+  right: clamp(1.2rem, 5vw, 6.2rem);
+  bottom: clamp(1.4rem, 4vw, 3.8rem);
+  display: grid;
+  gap: 0.65rem;
+  justify-items: center;
+  color: rgba(200,204,210,0.55);
+  font-size: 0.66rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.scroll-cue i {
+  display: block;
+  width: 1px;
+  height: 5.8rem;
+  background: linear-gradient(transparent, rgba(115,217,220,0.88), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+/* ── Marquee ──────────────────────────────────────────────────────────────── */
+
+.marquee-section {
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  padding: 3.6rem 0;
+  border-block: 1px solid rgba(200,204,210,0.08);
+  background: rgba(9,5,17,0.16);
+  backdrop-filter: blur(16px);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 2.4rem;
+  animation: marquee 32s linear infinite;
+}
+
+/* Dot separator between items */
+.marquee-track span::before {
+  content: "·";
+  margin-right: 2.4rem;
+  color: rgba(115,217,220,0.3);
+  font-size: 0.6em;
+  vertical-align: middle;
+}
+
+.marquee-track span {
+  font-family: "High Cruiser", "Orbitron", ui-sans-serif, sans-serif;
+  font-weight: 400;
+  color: rgba(237,242,246,0.7);
+  font-size: clamp(1.8rem, 4.2vw, 4.6rem);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.marquee-track span:nth-child(odd) {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(115,217,220,0.32);
+}
+
+/* ── Clip reveal wrapper — text slides up from below ─────────────────────── */
+
+.clip-wrap {
+  display: block;
+  overflow: hidden;
+  /* Bottom padding + negative margin prevent descender clipping */
+  padding-bottom: 0.15em;
+  margin-bottom: -0.15em;
+}
+
+/* Inner motion div fills the clip */
+.clip-wrap > div {
+  display: block;
+  will-change: transform;
+}
+
+/* ── Portal / links section ───────────────────────────────────────────────── */
+
+.portal-section {
+  position: relative;
+  z-index: 10;
+  padding: clamp(6rem, 11vw, 11rem) clamp(1.2rem, 6vw, 7rem);
+  overflow: hidden; /* contain the glow */
+}
+
+/* Header row above the list */
+.portal-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: clamp(3rem, 5vw, 5rem);
+  padding-bottom: clamp(1.5rem, 2.5vw, 2.5rem);
+  border-bottom: 1px solid rgba(200,204,210,0.08);
+}
+
+.section-marker {
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Wrapper so clip-wrap doesn't clip the descenders of the large heading */
+.section-marker-label-wrap .clip-wrap {
+  padding-bottom: 0.22em;
+  margin-bottom: -0.22em;
+}
+
+.section-marker-label {
+  margin: 0;
+  color: var(--white-soft);
+  font-family: "High Cruiser", "Orbitron", ui-sans-serif, sans-serif;
+  font-size: clamp(2.2rem, 4.5vw, 5rem);
+  font-weight: 400;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.section-marker-sub {
+  margin: 0.4rem 0 0;
+  color: rgba(115,217,220,0.6);
+  font-size: 0.7rem;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+}
+
+.section-marker-line {
+  display: none;
+}
+
+/* Count badge top-right of header */
+.portal-count {
+  flex-shrink: 0;
+  color: rgba(200,204,210,0.28);
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-family: "High Cruiser", "Orbitron", ui-sans-serif, sans-serif;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  align-self: flex-end;
+}
+
+/* ── Link grid ────────────────────────────────────────────────────────────── */
+
+.link-grid {
+  display: grid;
+  gap: 0;
+}
+
+/* ── Link tile ────────────────────────────────────────────────────────────── */
+
+.link-tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.4rem 4.2rem 1fr auto;
+  align-items: center;
+  gap: 0 clamp(1rem, 2vw, 2rem);
+  min-height: clamp(5.5rem, 10vw, 8rem);
+  padding: 0 clamp(0.5rem, 1.5vw, 1.5rem);
+  border-bottom: 1px solid rgba(200,204,210,0.07);
+  color: rgba(200,204,210,0.55);
+  text-decoration: none;
+  transition: color 300ms ease;
+  overflow: hidden;
+}
+
+.link-tile:first-child {
+  border-top: 1px solid rgba(200,204,210,0.07);
+}
+
+/* Full-width hover fill — slides in from left */
+.link-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(115,217,220,0.055) 0%,
+    rgba(81,38,128,0.04) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: opacity 400ms ease, transform 400ms cubic-bezier(0.16,1,0.3,1);
+  pointer-events: none;
+}
+
+/* Left accent bar */
+.link-tile::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 2px;
+  border-radius: 999px;
+  background: var(--accent, var(--aqua));
+  box-shadow: 0 0 1.2rem var(--accent, var(--aqua));
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: opacity 280ms ease, transform 360ms cubic-bezier(0.16,1,0.3,1);
+  pointer-events: none;
+}
+
+.link-tile:hover,
+.link-tile:focus-visible {
+  color: rgba(237,242,246,0.95);
+  outline: none;
+}
+
+.link-tile:hover::before,
+.link-tile:focus-visible::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.link-tile:hover::after,
+.link-tile:focus-visible::after {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Tile sub-elements */
+.tile-no,
+.tile-icon,
+.tile-copy,
+.tile-arrow-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.tile-no {
+  color: rgba(200,204,210,0.22);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  transition: color 300ms ease;
+}
+
+.link-tile:hover .tile-no {
+  color: rgba(200,204,210,0.5);
+}
+
+.tile-icon {
+  display: grid;
+  width: clamp(2.4rem, 4vw, 3rem);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(200,204,210,0.1);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.025);
+  transition: border-color 300ms ease, box-shadow 300ms ease, background 300ms ease;
+}
+
+.tile-icon svg {
+  width: 1rem;
+  height: 1rem;
+  color: rgba(200,204,210,0.5);
+  transition: color 300ms ease, transform 300ms cubic-bezier(0.16,1,0.3,1);
+}
+
+.link-tile:hover .tile-icon {
+  border-color: var(--accent, var(--aqua));
+  background: rgba(115,217,220,0.06);
+  box-shadow: 0 0 1.4rem color-mix(in srgb, var(--accent, var(--aqua)) 30%, transparent);
+}
+
+.link-tile:hover .tile-icon svg {
+  color: var(--accent, var(--aqua));
+  transform: scale(1.15);
+}
+
+.tile-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Platform name — High Cruiser, large */
+.tile-label {
+  display: block;
+  font-family: "High Cruiser", "Orbitron", ui-sans-serif, sans-serif;
+  font-size: clamp(1.8rem, 4.8vw, 5.2rem);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  color: rgba(237,242,246,0.82);
+  transition: color 300ms ease, transform 300ms cubic-bezier(0.16,1,0.3,1);
+  transform-origin: left center;
+}
+
+.link-tile:hover .tile-label {
+  color: #ffffff;
+  transform: translateX(0.3rem);
+}
+
+/* Handle / kicker */
+.tile-copy small {
+  display: block;
+  color: rgba(200,204,210,0.3);
+  font-size: 0.65rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  font-family: Inter, ui-sans-serif, sans-serif;
+  transition: color 300ms ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.link-tile:hover .tile-copy small {
+  color: rgba(200,204,210,0.55);
+}
+
+.tile-arrow-wrap {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 1px solid rgba(200,204,210,0.08);
+  transition: border-color 300ms ease, background 300ms ease, transform 300ms cubic-bezier(0.16,1,0.3,1);
+}
+
+.link-tile:hover .tile-arrow-wrap {
+  border-color: var(--accent, var(--aqua));
+  background: rgba(115,217,220,0.06);
+  transform: rotate(45deg);
+}
+
+.tile-arrow {
+  width: 0.9rem;
+  height: 0.9rem;
+  opacity: 0.3;
+  transition: opacity 300ms ease;
+}
+
+.link-tile:hover .tile-arrow {
+  opacity: 1;
+}
+
+/* ── Statement section ────────────────────────────────────────────────────── */
+
+.statement-section {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  min-height: 120vh;
+  place-items: center;
+  padding: clamp(5rem, 10vw, 9.5rem) clamp(1rem, 5vw, 6.2rem);
+}
+
+.statement-copy {
+  display: grid;
+  gap: clamp(0.6rem, 1.4vw, 1.1rem);
+  max-width: 88rem;
+  text-align: center;
+}
+
+/* Clip-wrap that is itself the outline variant */
+.clip-wrap.statement-clip--outline {
+  padding-bottom: 0.22em;
+  margin-bottom: -0.22em;
+}
+
+.statement-line {
+  display: block;
+  font-family: "High Cruiser", "Orbitron", ui-sans-serif, sans-serif;
+  font-weight: 400;
+  color: rgba(237,242,246,0.88);
+  font-size: clamp(2.8rem, 8.2vw, 9.2rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.statement-line--outline {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(115,217,220,0.6);
+  text-shadow: 0 0 4rem rgba(115,217,220,0.12);
+}
+
+/* ── Final card ───────────────────────────────────────────────────────────── */
+
+.final-section {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: clamp(4rem, 8vw, 8.5rem) 1rem;
+}
+
+.final-card {
+  position: relative;
+  width: min(60rem, 100%);
+  min-height: 30rem;
+  overflow: hidden;
+  border: 1px solid rgba(200,204,210,0.13);
+  border-radius: clamp(1.2rem, 3vw, 2.2rem);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(115,217,220,0.18), transparent 20rem),
+    linear-gradient(148deg, rgba(9,5,17,0.66), rgba(21,30,44,0.4));
+  box-shadow:
+    0 2.4rem 11rem rgba(0,0,0,0.55),
+    inset 0 0 5.5rem rgba(115,217,220,0.04);
+  backdrop-filter: blur(26px);
+}
+
+/* Animated conic border glow */
+.final-card-orbit {
+  position: absolute;
+  inset: -45%;
+  background: conic-gradient(
+    from 90deg,
+    transparent,
+    rgba(115,217,220,0.22),
+    transparent,
+    rgba(40,20,67,0.38),
+    transparent
+  );
+  animation: slowOrbit 20s linear infinite;
+  pointer-events: none;
+}
+
+.final-card-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  gap: 2rem;
+  padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 4vw, 3.5rem);
+  text-align: center;
+}
+
+.final-eyebrow {
+  margin: 0;
+  color: rgba(200,204,210,0.44);
+  font-size: 0.68rem;
+  letter-spacing: 0.46em;
+  text-transform: uppercase;
+}
+
+.final-logo {
+  display: block;
+  width: min(36rem, 90%);
+  filter:
+    drop-shadow(0 0 1.6rem rgba(115,217,220,0.13))
+    drop-shadow(0 0 4.5rem rgba(81,38,128,0.44));
+  mix-blend-mode: screen;
+}
+
+.final-statement {
+  margin: 0;
+  color: rgba(200,204,210,0.62);
+  font-family: "A Day Without Sun Text", ui-serif, Georgia, serif;
+  font-size: clamp(1rem, 1.6vw, 1.22rem);
+  line-height: 1.7;
+  text-align: center;
+  max-width: 28rem;
+}
+
+.final-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.92rem 1.6rem;
+  border: 1px solid rgba(115,217,220,0.34);
+  border-radius: 999px;
+  color: rgba(237,242,246,0.86);
+  background: rgba(255,255,255,0.05);
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease,
+    border-color 220ms ease;
+}
+
+.final-cta:hover,
+.final-cta:focus-visible {
+  outline: none;
+  background: rgba(115,217,220,0.12);
+  border-color: rgba(115,217,220,0.6);
+  box-shadow: 0 0 2.4rem rgba(115,217,220,0.18);
+  transform: translateY(-2px);
+}
+
+/* ── Keyframes ────────────────────────────────────────────────────────────── */
+
+@keyframes slowOrbit {
+  to { transform: rotate(1turn); }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { transform: scaleY(0.42); opacity: 0.42; }
+  50%       { transform: scaleY(1);    opacity: 1;    }
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  main { min-height: 440vh; }
+
+  /* Disc — smaller on mobile, peek from right edge */
+  .bg-disc-scene {
+    right: -32vw;
+  }
+
+  .bg-disc-body {
+    width: clamp(14rem, 80vw, 26rem);
+  }
+
+  .hero-sticky {
+    padding: 7.8rem 1rem 3.2rem;
+  }
+
+  .freq-bars {
+    top: 5.8rem;
+    left: 1rem;
+    transform: scale(0.82);
+    transform-origin: left center;
+  }
+
+  .hero-brand-lockup {
+    width: min(35rem, 108vw);
+    max-height: 46vh;
+    margin-left: -0.8rem;
+  }
+
+  .hero-title {
+    min-width: 0;
+    width: 100%;
+    font-size: clamp(3rem, 15vw, 5.5rem);
+    line-height: 0.88;
+  }
+
+  .tagline {
+    max-width: 22rem;
+    font-size: 1.15rem;
+    line-height: 1.5;
+  }
+
+  .subtagline {
+    max-width: 22rem;
+    font-size: 0.93rem;
+  }
+
+  .scroll-cue { display: none; }
+
+  .marquee-section { padding: 2.2rem 0; }
+
+  .portal-section {
+    padding: 4rem 1rem;
+  }
+
+  .portal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .portal-count {
+    font-size: 2.5rem;
+  }
+
+  .section-marker-label {
+    font-size: clamp(1.8rem, 7vw, 2.8rem);
+  }
+
+  .link-tile {
+    grid-template-columns: 3rem 3.2rem 1fr auto;
+    gap: 0 0.8rem;
+    min-height: 5.2rem;
+    padding: 0 0.2rem;
+  }
+
+  .tile-label {
+    font-size: clamp(1.6rem, 9.5vw, 3rem);
+  }
+
+  .statement-section { min-height: 84vh; }
+
+  .statement-copy span {
+    font-size: clamp(2.3rem, 12.5vw, 5rem);
+  }
+
+  .final-card { min-height: 26rem; }
+}
+
+@media (max-width: 480px) {
+  .link-tile {
+    grid-template-columns: 0 2.8rem 1fr auto;
+    gap: 0 0.7rem;
+    min-height: 4.8rem;
+  }
+
+  .tile-no { display: none; }
+
+  .tile-label {
+    font-size: clamp(1.4rem, 11vw, 2.4rem);
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

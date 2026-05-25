@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090511" />
+    <meta name="description" content="Infinite Productions — Cinematic sound, smoke-lit visuals, and infinite frequencies for worlds that move after dark." />
+    <meta property="og:title" content="Infinite Productions" />
+    <meta property="og:description" content="Cinematic sound, smoke-lit visuals, and infinite frequencies." />
+    <meta property="og:type" content="website" />
+
+    <title>Infinite Productions</title>
+
+    <!--
+      CDN font fallbacks — active immediately so the experience looks right
+      even before local font files are placed in /public/assets/fonts/.
+      The @font-face rules in styles.css will override these once local
+      files are present.
+    -->
+    <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/high-cruiser" />
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/a-day-without-sun" />
+
+    <style>
+      /* Inline critical: prevent flash of unstyled background */
+      html { background: #090511; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
