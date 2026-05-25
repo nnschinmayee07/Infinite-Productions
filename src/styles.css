@@ -119,6 +119,16 @@ main {
     radial-gradient(circle at calc(var(--cx, 50%) + 20%) calc(var(--cy, 50%) - 20%), rgba(81,38,128,0.18), transparent 26rem);
 }
 
+/* ── Load overlay — fades out on first paint ─────────────────────────────── */
+
+.load-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #090511;
+  pointer-events: none;
+}
+
 /* ── Progress line ────────────────────────────────────────────────────────── */
 
 .progress-line {
@@ -445,14 +455,11 @@ main {
 
 .logo-mark img,
 .logo-mark svg {
-  position: absolute;
-  width: 72%;
-  height: 52%;
+  width: 66%;
+  height: auto;
   object-fit: contain;
   color: rgba(200,204,210,0.8);
 }
-
-.logo-mark img { mix-blend-mode: screen; }
 
 /* ── Frequency bars — pure CSS, zero JS cost ─────────────────────────────── */
 
@@ -499,6 +506,7 @@ main {
   flex-direction: column;
   justify-content: flex-end;
   padding: clamp(6rem, 9vw, 9.5rem) clamp(1.2rem, 5.8vw, 6.8rem);
+  will-change: transform;
 }
 
 .eyebrow {
@@ -523,7 +531,6 @@ main {
     drop-shadow(0 0 1.8rem rgba(115,217,220,0.15))
     drop-shadow(0 0 5.5rem rgba(81,38,128,0.55));
   transform-origin: left bottom;
-  mix-blend-mode: screen;
 }
 
 /* Fallback text title — shown only when image fails */

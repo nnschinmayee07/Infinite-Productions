@@ -54,6 +54,13 @@ const FREQUENCIES = [
 const EASE_EXPO = [0.16, 1, 0.3, 1];
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   SCROLL CONTEXT  — one shared scrollYProgress for the whole tree
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const ScrollCtx = React.createContext(null);
+function useScrollProgress() { return React.useContext(ScrollCtx); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
    HOOKS
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -138,9 +145,8 @@ function AnimatedCount({ target, prefix = "0" }) {
 
 function LottieBackground() {
   const [animData, setAnimData] = useState(null);
-  const { scrollYProgress } = useScroll();
-  const rawOp = useTransform(scrollYProgress, [0, 0.05, 0.6, 0.85, 1], [0, 0.24, 0.19, 0.13, 0.09]);
-  const opacity = useSpring(rawOp, { stiffness: 28, damping: 42 });
+  const scrollYProgress = useScrollProgress();
+  const opacity = useTransform(scrollYProgress, [0, 0.05, 0.6, 0.85, 1], [0, 0.22, 0.18, 0.12, 0.08]);
 
   useEffect(() => {
     fetch("/assets/record-player.json")
@@ -208,7 +214,11 @@ function AtmosphereCanvas() {
       ctx.fillStyle = g;
       ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
     };
-    const render = () => {
+    let lastTs = 0;
+    const render = (ts) => {
+      raf = requestAnimationFrame(render);
+      if (ts - lastTs < 32) return; // ~30 fps cap, aligned to RAF not setTimeout
+      lastTs = ts;
       frame += 0.005;
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = "lighter";
@@ -229,20 +239,19 @@ function AtmosphereCanvas() {
         ctx.beginPath(); ctx.arc(p.x * W, p.y * H, p.size, 0, Math.PI * 2); ctx.fill();
       }
       ctx.globalAlpha = 1;
-      timeout = setTimeout(() => { raf = requestAnimationFrame(render); }, 33);
     };
-    resize(); render();
+    resize(); raf = requestAnimationFrame(render);
     window.addEventListener("resize", resize, { passive: true });
-    return () => { cancelAnimationFrame(raf); clearTimeout(timeout); window.removeEventListener("resize", resize); };
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
   }, []);
   return <canvas ref={canvasRef} className="atmo-canvas" aria-hidden="true" />;
 }
 
 function BackgroundDisc() {
-  const { scrollYProgress } = useScroll();
-  const tilt    = useSpring(useTransform(scrollYProgress, [0, 1], [12, -8]),  { stiffness: 18, damping: 38, mass: 1.2 });
-  const discY   = useSpring(useTransform(scrollYProgress, [0, 1], [0, 60]),   { stiffness: 18, damping: 38, mass: 1.2 });
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.06, 0.55, 0.9, 1], [0, 0.7, 0.45, 0.6, 0.4]), { stiffness: 22, damping: 42 });
+  const scrollYProgress = useScrollProgress();
+  const tilt    = useSpring(useTransform(scrollYProgress, [0, 1], [12, -8]),  { stiffness: 60, damping: 22 });
+  const discY   = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const opacity = useTransform(scrollYProgress, [0, 0.06, 0.55, 0.9, 1], [0, 0.7, 0.45, 0.6, 0.4]);
   const discSpin = useMotionValue(0);
   useEffect(() => {
     const c = animate(discSpin, 360, { duration: 18, ease: "linear", repeat: Infinity, repeatType: "loop" });
@@ -277,6 +286,7 @@ function BackgroundDisc() {
 
 function LogoMark() {
   const [imgFailed, setImgFailed] = useState(false);
+  const markSrc = useTransparentBrand("/assets/logo/infinity-mark.png");
   return (
     <motion.div
       className="logo-mark"
@@ -285,9 +295,9 @@ function LogoMark() {
       transition={{ duration: 1.2, ease: EASE_EXPO, delay: 0.1 }}
     >
       <div className="logo-mark-ring" />
-      {!imgFailed
-        ? <img src="/assets/logo/infinity-mark.png" alt="Infinite Productions mark" onError={() => setImgFailed(true)} />
-        : <Music2 aria-hidden="true" strokeWidth={1.2} />}
+      {!imgFailed && markSrc
+        ? <img src={markSrc} alt="Infinite Productions mark" onError={() => setImgFailed(true)} />
+        : !imgFailed ? null : <Music2 aria-hidden="true" strokeWidth={1.2} />}
     </motion.div>
   );
 }
@@ -381,11 +391,39 @@ function MagneticLink({ item, index }) {
    SECTION — HERO
    ═══════════════════════════════════════════════════════════════════════════ */
 
+function useTransparentBrand(src) {
+  const [blobSrc, setBlobSrc] = useState(null);
+  useEffect(() => {
+    let url = null;
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i] < 42 && d[i + 1] < 42 && d[i + 2] < 42) d[i + 3] = 0;
+      }
+      ctx.putImageData(imgData, 0, 0);
+      canvas.toBlob(blob => {
+        if (blob) { url = URL.createObjectURL(blob); setBlobSrc(url); }
+      }, "image/png");
+    };
+    img.src = src;
+    return () => { if (url) URL.revokeObjectURL(url); };
+  }, [src]);
+  return blobSrc;
+}
+
 function HeroSection() {
-  const { scrollYProgress } = useScroll();
-  const heroY        = useSpring(useTransform(scrollYProgress, [0, 0.35], ["0%", "-16%"]),  { stiffness: 38, damping: 50 });
+  const scrollYProgress = useScrollProgress();
+  const heroY        = useTransform(scrollYProgress, [0, 0.35], ["0%", "-16%"]);
   const titleScale   = useTransform(scrollYProgress, [0, 0.24], [1, 0.86]);
   const titleOpacity = useTransform(scrollYProgress, [0, 0.28], [1, 0.18]);
+  const brandSrc     = useTransparentBrand("/assets/logo/brand-lockup.png");
 
   return (
     <section className="hero-section">
@@ -401,15 +439,17 @@ function HeroSection() {
           Est. 2024 &nbsp;·&nbsp; Music Production Collective
         </motion.p>
 
-        <motion.img
-          className="hero-brand-lockup"
-          src="/assets/logo/brand-lockup.png"
-          alt="Infinite Productions"
-          style={{ scale: titleScale, opacity: titleOpacity }}
-          initial={{ opacity: 0, y: 56, filter: "blur(20px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ delay: 0.08, duration: 1.2, ease: EASE_EXPO }}
-        />
+        {brandSrc && (
+          <motion.img
+            className="hero-brand-lockup"
+            src={brandSrc}
+            alt="Infinite Productions"
+            style={{ scale: titleScale, opacity: titleOpacity }}
+            initial={{ opacity: 0, y: 56, filter: "blur(20px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: 0.08, duration: 1.2, ease: EASE_EXPO }}
+          />
+        )}
 
         <motion.h1
           className="hero-title"
@@ -427,9 +467,7 @@ function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.26, duration: 0.9, ease: EASE_EXPO }}
         >
-          Beats built in the dark.
-          <br />
-          Sounds that don't exist yet.
+          stories through notes
         </motion.p>
 
         <motion.p
@@ -438,8 +476,7 @@ function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.38, duration: 0.9, ease: EASE_EXPO }}
         >
-          FINITE crafts cinematic instrumentals, trap, ambient &amp; experimental
-          productions — music for artists who move after dark.
+          Hello! I'm FINITE. I believe every track contains a story that deserves to be told.
         </motion.p>
 
         <ScrollCue />
@@ -564,6 +601,7 @@ function StatementSection() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function FinalSection() {
+  const brandSrc = useTransparentBrand("/assets/logo/brand-lockup.png");
   return (
     <section className="final-section">
       <motion.div
@@ -584,15 +622,17 @@ function FinalSection() {
           >
             Open for collaboration
           </motion.p>
-          <motion.img
-            className="final-logo"
-            src="/assets/logo/brand-lockup.png"
-            alt="Infinite Productions"
-            initial={{ opacity: 0, scale: 0.88 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.28, duration: 0.8, ease: EASE_EXPO }}
-          />
+          {brandSrc && (
+            <motion.img
+              className="final-logo"
+              src={brandSrc}
+              alt="Infinite Productions"
+              initial={{ opacity: 0, scale: 0.88 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.28, duration: 0.8, ease: EASE_EXPO }}
+            />
+          )}
           <motion.p
             className="final-statement"
             initial={{ opacity: 0, y: 20 }}
@@ -623,6 +663,21 @@ function FinalSection() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   LOAD OVERLAY — full-page black cover that fades out on first paint
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function LoadOverlay() {
+  return (
+    <motion.div
+      className="load-overlay"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0 }}
+      transition={{ duration: 0.65, ease: "easeOut", delay: 0.15 }}
+    />
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    APP
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -636,6 +691,8 @@ export default function App() {
   const frequencies = useMemo(() => FREQUENCIES, []);
 
   return (
+    <ScrollCtx.Provider value={scrollYProgress}>
+    <LoadOverlay />
     <main ref={mainRef}>
       {/* ── Progress bar ── */}
       <motion.div className="progress-line" style={{ scaleX }} />
@@ -658,7 +715,10 @@ export default function App() {
       <StatementSection />
       <FinalSection />
     </main>
+    </ScrollCtx.Provider>
   );
 }
 
-createRoot(document.getElementById("root")).render(<App />);
+const _container = document.getElementById("root");
+if (!_container._reactRoot) _container._reactRoot = createRoot(_container);
+_container._reactRoot.render(<App />);
