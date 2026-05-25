@@ -423,24 +423,11 @@ function HeroSection() {
   const heroY        = useTransform(scrollYProgress, [0, 0.35], ["0%", "-16%"]);
   const titleScale   = useTransform(scrollYProgress, [0, 0.24], [1, 0.86]);
   const titleOpacity = useTransform(scrollYProgress, [0, 0.28], [1, 0.18]);
-  const brandSrc     = useTransparentBrand("/assets/logo/brand-lockup.png");
 
   return (
     <section className="hero-section">
       <motion.div className="hero-sticky" style={{ y: heroY }}>
         <FrequencyBars />
-
-        {brandSrc && (
-          <motion.img
-            className="hero-brand-lockup"
-            src={brandSrc}
-            alt="Infinite Productions"
-            style={{ scale: titleScale, opacity: titleOpacity }}
-            initial={{ opacity: 0, y: 56, filter: "blur(20px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: 0.08, duration: 1.2, ease: EASE_EXPO }}
-          />
-        )}
 
         <motion.h1
           className="hero-title"
@@ -584,15 +571,17 @@ function FinalSection() {
           >
             Open for collaboration
           </motion.p>
-          <motion.h2
-            className="final-brand-text"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.28, duration: 0.8, ease: EASE_EXPO }}
-          >
-            Infinite Productions
-          </motion.h2>
+          {brandSrc && (
+            <motion.img
+              className="final-logo"
+              src={brandSrc}
+              alt="Infinite Productions"
+              initial={{ opacity: 0, scale: 0.88 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.28, duration: 0.8, ease: EASE_EXPO }}
+            />
+          )}
           <motion.p
             className="final-statement"
             initial={{ opacity: 0, y: 20 }}
